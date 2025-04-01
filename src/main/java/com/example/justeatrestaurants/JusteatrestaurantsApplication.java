@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -95,7 +94,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 
 		int index = 1;
 		// Add space for the indices that are powers of 10
-		String space = "";
+		StringBuilder space = new StringBuilder();
 
 		// Create the corresponding strings for displaying
 		for (RestaurantDto r : restaurants) {
@@ -123,7 +122,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 
 			// Add a space if index gets a new digit, so that the name and the presented values are aligned.
 			if (index == 10 || index == 100 || index == 1000) {
-				space += " ";
+				space.append(" ");
 			}
 
 			// Display the information
@@ -201,7 +200,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 
 			int index = 1;
 			// Add space for the indices that are powers of 10
-			String space = "";
+			StringBuilder space = new StringBuilder();
 
 			for (RestaurantDto r : restaurants) {
 				String name = r.getName().trim();
@@ -218,12 +217,12 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 
 				// Add a space if index gets a new digit, so that the name and the presented values are aligned.
 				if (index == 10 || index == 100 || index == 1000) {
-					space += " ";
+					space.append(" ");
 				}
 
-				writer.println("   Cuisines: " + cuisines);
-				writer.println("   Rating: " + ratingStr);
-				writer.println("   Address: " + address);
+				writer.println(space + "   Cuisines: " + cuisines);
+				writer.println(space + "   Rating: " + ratingStr);
+				writer.println(space + "   Address: " + address);
 				writer.println();
 			}
 
