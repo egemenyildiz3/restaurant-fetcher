@@ -36,6 +36,12 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	public void run(String[] args) {
 		Scanner scanner = new Scanner(System.in);
 
+		// First run with hardcoded default postcode
+		String defaultPostcode = "EC4M7RF";
+		System.out.println("Fetching restaurants for default postcode: " + defaultPostcode);
+		fetchAndDisplay(defaultPostcode);
+
+		// Loop for additional searches
 		while (true) {
 			// Ask the user to input a postcode or exit
 			System.out.print("Enter a UK postcode (or type 'exit' to quit): ");
@@ -52,42 +58,52 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 				continue;
 			}
 
-			// Fetch restaurants and sort by rating (highest first)
-			List<RestaurantDto> restaurants = restaurantService.fetchRestaurants(postcode);
-			restaurants.sort(Comparator.comparingDouble(RestaurantDto::getRating).reversed());
-
-			if (restaurants.isEmpty()) {
-				System.out.println("No restaurants found for postcode " + postcode + "\n");
-				continue;
-			}
-
-			// Print the restaurant list to the console
-			System.out.println("\nTop 10 Restaurants:");
-			int index = 1;
-			for (RestaurantDto r : restaurants) {
-				// Clean and format output fields
-				String cleanedName = r.getName().replaceAll("[^\\x00-\\x7F]", "").trim();
-				String cleanedAddress = r.getAddress()
-						.replaceAll("[^\\x00-\\x7F]", "")
-						.replaceAll(",", ", ")
-						.replaceAll("\\s+", " ")
-						.trim();
-				String cleanedCuisines = r.getCuisines().stream()
-						.map(c -> c.replaceAll("[^\\x00-\\x7F]", "").trim())
-						.collect(Collectors.joining(", "));
-				String ratingStr = r.getRating() > 0 ? String.valueOf(r.getRating()) : "Not Rated";
-
-				// Display each restaurant
-				System.out.println(index++ + ". " + cleanedName);
-				System.out.println("   Cuisines: " + cleanedCuisines);
-				System.out.println("   Rating: " + ratingStr);
-				System.out.println("   Address: " + cleanedAddress);
-				System.out.println();
-			}
-
-			// Save the same results to a file
-			saveToFile(restaurants, postcode);
+			fetchAndDisplay(postcode);
 		}
+	}
+
+	/**
+	 * Fetches, displays, and saves the top 10 restaurants for the given postcode.
+	 *
+	 * @param postcode A valid UK postcode
+	 */
+	private void fetchAndDisplay(String postcode) {
+
+		// Fetch restaurants and sort by rating (highest first)
+		List<RestaurantDto> restaurants = restaurantService.fetchRestaurants(postcode);
+		restaurants.sort(Comparator.comparingDouble(RestaurantDto::getRating).reversed());
+
+		if (restaurants.isEmpty()) {
+			System.out.println("No restaurants found for postcode " + postcode + "\n");
+			return;
+		}
+
+		// Print the restaurant list to the console
+		System.out.println("\nTop 10 Restaurants:");
+		int index = 1;
+		for (RestaurantDto r : restaurants) {
+			// Clean and format output fields
+			String cleanedName = r.getName().replaceAll("[^\\x00-\\x7F]", "").trim();
+			String cleanedAddress = r.getAddress()
+					.replaceAll("[^\\x00-\\x7F]", "")
+					.replaceAll(",", ", ")
+					.replaceAll("\\s+", " ")
+					.trim();
+			String cleanedCuisines = r.getCuisines().stream()
+					.map(c -> c.replaceAll("[^\\x00-\\x7F]", "").trim())
+					.collect(Collectors.joining(", "));
+			String ratingStr = r.getRating() > 0 ? String.valueOf(r.getRating()) : "Not Rated";
+
+			// Display each restaurant
+			System.out.println(index++ + ". " + cleanedName);
+			System.out.println("   Cuisines: " + cleanedCuisines);
+			System.out.println("   Rating: " + ratingStr);
+			System.out.println("   Address: " + cleanedAddress);
+			System.out.println();
+		}
+
+		// Save the same results to a file
+		saveToFile(restaurants, postcode);
 	}
 
 	/**
