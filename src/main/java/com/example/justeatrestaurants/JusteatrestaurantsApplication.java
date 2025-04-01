@@ -22,6 +22,14 @@ import java.util.stream.Collectors;
 @SpringBootApplication
 public class JusteatrestaurantsApplication implements CommandLineRunner {
 
+	// Color codes for CLI
+	private static final String RESET = "\u001B[0m";
+	private static final String GREEN = "\u001B[32m";
+	private static final String RED = "\u001B[31m";
+	private static final String YELLOW = "\u001B[33m";
+	private static final String CYAN = "\u001B[36m";
+	private static final String WHITE_BOLD = "\u001B[1;37m";
+
 	@Autowired
 	private RestaurantService restaurantService;
 
@@ -92,10 +100,21 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 			String cleanedCuisines = r.getCuisines().stream()
 					.map(c -> c.replaceAll("[^\\x00-\\x7F]", "").trim())
 					.collect(Collectors.joining(", "));
-			String ratingStr = r.getRating() > 0 ? String.valueOf(r.getRating()) : "Not Rated";
+			String ratingStr;
+			// Color-based rating displaying
+			if (r.getRating() >= 4.0) {
+				ratingStr = GREEN + r.getRating() + RESET;
+			} else if (r.getRating() > 0 && r.getRating() < 2.5) {
+				ratingStr = RED + r.getRating() + RESET;
+			} else if (r.getRating() == 0.0) {
+				ratingStr = YELLOW + "Not Rated" + RESET;
+			} else {
+				ratingStr = CYAN + r.getRating() + RESET;
+			}
+
 
 			// Display each restaurant
-			System.out.println(index++ + ". " + cleanedName);
+			System.out.println(WHITE_BOLD + index++ + ". " + cleanedName + RESET);
 			System.out.println("   Cuisines: " + cleanedCuisines);
 			System.out.println("   Rating: " + ratingStr);
 			System.out.println("   Address: " + cleanedAddress);
