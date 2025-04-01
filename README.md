@@ -24,7 +24,7 @@ Even though this is a console app, I wanted to show how I would structure a real
 - Connects to the Just Eat API using a UK postcode
 - On startup, it fetches results for a **default hardcoded postcode**
 - After that, the user can enter more postcodes or type `exit` to quit
-- Shows the **top 10 restaurants** for each postcode, sorted descending by rating (NOTE: It does **not** return the top 10 highest-rated restaurants.)
+- Shows the **top 10 restaurants** for each postcode
 - Displays:
     - Restaurant name
     - Cuisines
@@ -122,6 +122,7 @@ For example, if it’s in your `Downloads` folder:
 - The goal was to clearly display the 4 required fields (name, cuisines, rating, address) in a readable way, not to build a graphical interface. The CLI format was chosen for production speed and clarity.
 - The `cuisines` field in the API contains both actual cuisines (like "Thai") and platform tags (like "Low Delivery Fee" or "Cheeky Tuesday"). This is how the API structures the data, and I've displayed it as provided. I assume that sanitizing this input is not necessary as it is how the API is deliberately constructed.
 - I used the rating standards of Takeaway.com.
+- Descending sorting of the fetched events have been removed due to no specifications existing upon the displaying order.
 - I assumed the API structure remains stable (field names don’t change).
 - The app only uses the 4 required fields: name, cuisines, rating, address.
 - The app handles missing ratings and special characters in API responses.

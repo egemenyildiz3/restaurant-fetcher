@@ -84,15 +84,18 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 		List<RestaurantDto> restaurants = restaurantService.fetchRestaurants(postcode);
 
 		// Sort them by descending rating (Not all the restaurants, only the top 10 we consider)
-		restaurants.sort(Comparator.comparingDouble(RestaurantDto::getRating).reversed());
+		// restaurants.sort(Comparator.comparingDouble(RestaurantDto::getRating).reversed());
 
 		if (restaurants.isEmpty()) {
 			System.out.println("No restaurants found for postcode " + postcode.toUpperCase() + "\n");
 			return;
 		}
 
-		System.out.println("\nTop 10 Restaurants for the postcode " + postcode.toUpperCase() + ":");
+		System.out.println(BOLD + "\nTop 10 Restaurants for the postcode " + postcode.toUpperCase() + ":" + RESET);
+
 		int index = 1;
+		// Add space for the indices that are powers of 10
+		String space = "";
 
 		// Create the corresponding strings for displaying
 		for (RestaurantDto r : restaurants) {
@@ -118,11 +121,16 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 				ratingStr = YELLOW + "[Not Rated]" + RESET;
 			}
 
+			// Add a space if index gets a new digit, so that the name and the presented values are aligned.
+			if (index == 10 || index == 100 || index == 1000) {
+				space += " ";
+			}
+
 			// Display the information
 			System.out.println(ORANGE + index++ + ". " + cleanedName + RESET);
-			System.out.println("   Cuisines: " + cleanedCuisines);
-			System.out.println("   Rating: " + ratingStr);
-			System.out.println("   Address: " + cleanedAddress);
+			System.out.println(BOLD + space + "   Cuisines: " + cleanedCuisines + RESET);
+			System.out.println(BOLD + space + "   Rating: " + ratingStr + RESET);
+			System.out.println(BOLD + space + "   Address: " + cleanedAddress + RESET);
 			System.out.println();
 		}
 
@@ -189,8 +197,11 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 		File outputFile = new File(folder, filename);
 
 		try (PrintWriter writer = new PrintWriter(outputFile)) {
-			writer.println(BOLD + "Top 10 Restaurants for Postcode: " + postcode + RESET);
+			writer.println("Top 10 Restaurants for Postcode " + postcode.toUpperCase() + ": ");
+
 			int index = 1;
+			// Add space for the indices that are powers of 10
+			String space = "";
 
 			for (RestaurantDto r : restaurants) {
 				String name = r.getName().trim();
@@ -204,9 +215,15 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 				String ratingStr = r.getRating() > 0 ? String.valueOf(r.getRating()) : "Not Rated";
 
 				writer.println(index++ + ". " + name);
-				writer.println(BOLD + "    Cuisines: " + cuisines + RESET);
-				writer.println(BOLD + "    Rating: " + ratingStr + RESET);
-				writer.println(BOLD + "    Address: " + address + RESET);
+
+				// Add a space if index gets a new digit, so that the name and the presented values are aligned.
+				if (index == 10 || index == 100 || index == 1000) {
+					space += " ";
+				}
+
+				writer.println("   Cuisines: " + cuisines);
+				writer.println("   Rating: " + ratingStr);
+				writer.println("   Address: " + address);
 				writer.println();
 			}
 
