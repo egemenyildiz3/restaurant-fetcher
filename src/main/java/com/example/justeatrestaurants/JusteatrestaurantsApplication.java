@@ -219,11 +219,11 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	 * Prints a banner with app title and instructions at startup.
 	 */
     void printBanner() {
-		String banner = """
+		String banner = ORANGE + """ 
 		==========================================
 		! Welcome to TakeAway Restaurant Fetcher !
 		==========================================
-		""";
+		""" + RESET;
 		System.out.println(banner);
 	}
 }
