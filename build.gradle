@@ -17,6 +17,11 @@ repositories {
 	mavenCentral()
 }
 
+bootRun {
+	standardInput = System.in
+}
+
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

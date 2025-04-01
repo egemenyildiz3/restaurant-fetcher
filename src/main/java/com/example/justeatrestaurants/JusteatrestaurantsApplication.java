@@ -1,19 +1,23 @@
 package com.example.justeatrestaurants;
 
-import com.example.justeatrestaurants.model.RestaurantDto;
-import com.example.justeatrestaurants.service.RestaurantService;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Scanner;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.example.justeatrestaurants.model.RestaurantDto;
+import com.example.justeatrestaurants.service.RestaurantService;
 
 /**
  * Entry point for the Just Eat Restaurant Viewer Console Application.
@@ -38,37 +42,54 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 		SpringApplication app = new SpringApplication(JusteatrestaurantsApplication.class);
 		app.setWebApplicationType(WebApplicationType.NONE);
 		app.run(args);
+
 	}
 
 	@Override
 	public void run(String[] args) {
-		Scanner scanner = new Scanner(System.in);
+		//print the welcome text
+		printBanner();
 
 		// First run with hardcoded default postcode
 		String defaultPostcode = "EC4M7RF";
 		System.out.println("Fetching restaurants for default postcode: " + defaultPostcode);
-		fetchAndDisplay(defaultPostcode);
+		fetchAndDisplay(defaultPostcode);  // Fetch and display for default postcode
+
+		// Interactive Postcode Search
+		handleUserInput();
+
+	}
+
+	private void handleUserInput() {
+		// Create a Scanner instance outside the loop to avoid opening/closing repeatedly
+		Scanner scanner = new Scanner(System.in);
 
 		// Loop for additional searches
 		while (true) {
 			// Ask the user to input a postcode or exit
 			System.out.print("Enter a UK postcode (or type 'exit' to quit): ");
-			String postcode = scanner.nextLine().trim();
+
+			String postcode = scanner.nextLine().trim();  // Read postcode from user
 
 			if (postcode.equalsIgnoreCase("exit")) {
 				System.out.println("Goodbye");
-				break;
+				break;  // Exit the loop if the user wants to quit
 			}
 
 			// Validate UK postcode format
 			if (!isValidPostcode(postcode)) {
-				System.out.println("❌ Invalid postcode format. Try again.\n");
-				continue;
+				System.out.println("- Invalid postcode format. Try again.\n");
+				continue;  // Ask again if the postcode format is invalid
 			}
 
+			// Fetch and display results for the valid postcode
 			fetchAndDisplay(postcode);
 		}
+
+		// Close the scanner after the loop ends to free up resources
+		scanner.close();
 	}
+
 
 	/**
 	 * Fetches, displays, and saves the top 10 restaurants for the given postcode.
@@ -177,9 +198,21 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 				writer.println();
 			}
 
-			System.out.println("✅ Results saved to FetchedRestaurants/" + filename + "\n");
+			System.out.println("+ Results saved to FetchedRestaurants/" + filename + "\n");
 		} catch (IOException e) {
-			System.out.println("❌ Failed to save file: " + e.getMessage());
+			System.out.println("- Failed to save file: " + e.getMessage());
 		}
 	}
+
+
+	private void printBanner() {
+		String banner = """
+		===========================================
+		     ! Welcome to TakeAway Restaurant Fetcher !
+		===========================================
+		Fetch top-rated restaurants in the UK by postcode.
+		""";
+		System.out.println(banner);
+	}
+
 }
