@@ -21,6 +21,11 @@ bootRun {
 	standardInput = System.in
 }
 
+bootJar {
+	archiveBaseName.set("takeaway-fetcher")
+	archiveVersion.set("")
+}
+
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'

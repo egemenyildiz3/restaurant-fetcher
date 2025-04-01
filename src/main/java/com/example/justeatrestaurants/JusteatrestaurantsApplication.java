@@ -32,7 +32,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	private static final String RED = "\u001B[31m";
 	private static final String YELLOW = "\u001B[33m";
 	private static final String CYAN = "\u001B[36m";
-	private static final String WHITE_BOLD = "\u001B[1;37m";
+	private static final String ORANGE = "\u001B[38;5;208m";
 
 	@Autowired
 	private RestaurantService restaurantService;
@@ -57,14 +57,78 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	 */
 	@Override
 	public void run(String[] args) {
+		// Run the welcoming banner
 		printBanner();
 
+		// The default Postcode
 		String defaultPostcode = "EC4M7RF";
+
+		// Message for indication of the process
 		System.out.println("Fetching restaurants for default postcode: " + defaultPostcode + "...");
+
+		// Helper function for fetching the list from the API and presenting it in the CLI
 		fetchAndDisplay(defaultPostcode);
 
+		// Additional functionality that allows users to enter their own queries
 		handleUserInput();
 	}
+
+	/**
+	 * Fetches, displays, and saves the top 10 restaurants for the given postcode.
+	 *
+	 * @param postcode A valid UK postcode
+	 */
+	private void fetchAndDisplay(String postcode) {
+		// Obtain the restaurants
+		List<RestaurantDto> restaurants = restaurantService.fetchRestaurants(postcode);
+
+		// Sort them by descending rating (Not all the restaurants, only the top 10 we consider)
+		restaurants.sort(Comparator.comparingDouble(RestaurantDto::getRating).reversed());
+
+		if (restaurants.isEmpty()) {
+			System.out.println("No restaurants found for postcode " + postcode.toUpperCase() + "\n");
+			return;
+		}
+
+		System.out.println("\nTop 10 Restaurants for the postcode " + postcode.toUpperCase() + ":");
+		int index = 1;
+
+		// Create the corresponding strings for displaying
+		for (RestaurantDto r : restaurants) {
+			String cleanedName = r.getName().replaceAll("[^\\x00-\\x7F]", "").trim();
+			String cleanedAddress = r.getAddress()
+					.replaceAll("[^\\x00-\\x7F]", "")
+					.replaceAll(",", ", ")
+					.replaceAll("\\s+", " ")
+					.trim();
+			String cleanedCuisines = r.getCuisines().stream()
+					.map(c -> c.replaceAll("[^\\x00-\\x7F]", "").trim())
+					.collect(Collectors.joining(", "));
+
+			// Determine the color of the rating
+			String ratingStr;
+			if (r.getRating() >= 4.0) {
+				ratingStr = GREEN + r.getRating() + RESET;
+			} else if (r.getRating() >= 2.5) {
+				ratingStr = CYAN  + r.getRating() + RESET;
+			} else if (r.getRating() > 0) {
+				ratingStr = RED + r.getRating() + RESET;
+			} else {
+				ratingStr = YELLOW + "[Not Rated]" + RESET;
+			}
+
+			// Display the information
+			System.out.println(ORANGE + index++ + ". " + cleanedName + RESET);
+			System.out.println("   Cuisines: " + cleanedCuisines);
+			System.out.println("   Rating: " + ratingStr);
+			System.out.println("   Address: " + cleanedAddress);
+			System.out.println();
+		}
+
+		// Log the information obtained to a txt file
+		saveToFile(restaurants, postcode);
+	}
+
 
 	/**
 	 * Handles user interaction for entering postcodes and viewing restaurants.
@@ -73,6 +137,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	private void handleUserInput() {
 		Scanner scanner = new Scanner(System.in);
 
+		// Loop that allows users to query as many postcodes as they wish
 		while (true) {
 			System.out.print("Enter a UK postcode (or type 'exit' to quit): ");
 			String postcode = scanner.nextLine().trim();
@@ -94,60 +159,13 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	}
 
 	/**
-	 * Fetches, displays, and saves the top 10 restaurants for the given postcode.
-	 *
-	 * @param postcode A valid UK postcode
-	 */
-	private void fetchAndDisplay(String postcode) {
-		List<RestaurantDto> restaurants = restaurantService.fetchRestaurants(postcode);
-		restaurants.sort(Comparator.comparingDouble(RestaurantDto::getRating).reversed());
-
-		if (restaurants.isEmpty()) {
-			System.out.println("No restaurants found for postcode " + postcode + "\n");
-			return;
-		}
-
-		System.out.println("\nTop 10 Restaurants for the postcode " + postcode + ": ");
-		int index = 1;
-		for (RestaurantDto r : restaurants) {
-			String cleanedName = r.getName().replaceAll("[^\\x00-\\x7F]", "").trim();
-			String cleanedAddress = r.getAddress()
-					.replaceAll("[^\\x00-\\x7F]", "")
-					.replaceAll(",", ", ")
-					.replaceAll("\\s+", " ")
-					.trim();
-			String cleanedCuisines = r.getCuisines().stream()
-					.map(c -> c.replaceAll("[^\\x00-\\x7F]", "").trim())
-					.collect(Collectors.joining(", "));
-
-			String ratingStr;
-			if (r.getRating() >= 4.0) {
-				ratingStr = GREEN + r.getRating() + RESET;
-			} else if (r.getRating() > 0 && r.getRating() < 2.5) {
-				ratingStr = RED + r.getRating() + RESET;
-			} else if (r.getRating() == 0.0) {
-				ratingStr = YELLOW + "Not Rated" + RESET;
-			} else {
-				ratingStr = CYAN + r.getRating() + RESET;
-			}
-
-			System.out.println(WHITE_BOLD + index++ + ". " + cleanedName + RESET);
-			System.out.println("   Cuisines: " + cleanedCuisines);
-			System.out.println("   Rating: " + ratingStr);
-			System.out.println("   Address: " + cleanedAddress);
-			System.out.println();
-		}
-
-		saveToFile(restaurants, postcode);
-	}
-
-	/**
 	 * Validates a UK postcode using a basic regex pattern.
 	 *
 	 * @param postcode the postcode to validate
 	 * @return true if the postcode is valid, false otherwise
 	 */
 	private boolean isValidPostcode(String postcode) {
+		// Regex for the UK-based postcodes
 		String regex = "^[A-Z]{1,2}[0-9][0-9A-Z]?\\s?[0-9][A-Z]{2}$";
 		return postcode.toUpperCase().matches(regex);
 	}
@@ -191,9 +209,9 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 				writer.println();
 			}
 
-			System.out.println("+++ Results saved to FetchedRestaurants/" + filename + "\n");
+			System.out.println("Results saved to FetchedRestaurants/" + filename + "\n");
 		} catch (IOException e) {
-			System.out.println("--- Failed to save file: " + e.getMessage());
+			System.out.println("Failed to save file: " + e.getMessage());
 		}
 	}
 
