@@ -28,6 +28,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 
 	// Color codes for CLI
 	private static final String RESET = "\u001B[0m";
+	private static final String BOLD = "\u001B[1m";
 	private static final String GREEN = "\u001B[32m";
 	private static final String RED = "\u001B[31m";
 	private static final String YELLOW = "\u001B[33m";
@@ -188,7 +189,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 		File outputFile = new File(folder, filename);
 
 		try (PrintWriter writer = new PrintWriter(outputFile)) {
-			writer.println("Top 10 Restaurants for Postcode: " + postcode);
+			writer.println(BOLD + "Top 10 Restaurants for Postcode: " + postcode + RESET);
 			int index = 1;
 
 			for (RestaurantDto r : restaurants) {
@@ -203,9 +204,9 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 				String ratingStr = r.getRating() > 0 ? String.valueOf(r.getRating()) : "Not Rated";
 
 				writer.println(index++ + ". " + name);
-				writer.println("   Cuisines: " + cuisines);
-				writer.println("   Rating: " + ratingStr);
-				writer.println("   Address: " + address);
+				writer.println(BOLD + "    Cuisines: " + cuisines + RESET);
+				writer.println(BOLD + "    Rating: " + ratingStr + RESET);
+				writer.println(BOLD + "    Address: " + address + RESET);
 				writer.println();
 			}
 
@@ -219,7 +220,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	 * Prints a banner with app title and instructions at startup.
 	 */
     void printBanner() {
-		String banner = ORANGE + """ 
+		String banner = "\n" + ORANGE + """ 
 		==========================================
 		! Welcome to TakeAway Restaurant Fetcher !
 		==========================================
