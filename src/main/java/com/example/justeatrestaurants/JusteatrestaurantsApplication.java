@@ -202,9 +202,9 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	 */
 	private void printBanner() {
 		String banner = """
-		===========================================
-		     ! Welcome to TakeAway Restaurant Fetcher !
-		===========================================
+		==========================================
+		! Welcome to TakeAway Restaurant Fetcher !
+		==========================================
 		""";
 		System.out.println(banner);
 	}
