@@ -79,7 +79,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 		}
 
 		// Print the restaurant list to the console
-		System.out.println("\nTop 10 Restaurants:");
+		System.out.println("\nTop 10 Restaurants for the postcode " + postcode + ": ");
 		int index = 1;
 		for (RestaurantDto r : restaurants) {
 			// Clean and format output fields
