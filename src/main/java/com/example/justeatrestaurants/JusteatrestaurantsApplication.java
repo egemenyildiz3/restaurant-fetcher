@@ -37,59 +37,61 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	@Autowired
 	private RestaurantService restaurantService;
 
+	/**
+	 * Main method to launch the application.
+	 *
+	 * @param args command-line arguments (not used)
+	 */
 	public static void main(String[] args) {
 		// Disable the web server — only need a console app
 		SpringApplication app = new SpringApplication(JusteatrestaurantsApplication.class);
 		app.setWebApplicationType(WebApplicationType.NONE);
 		app.run(args);
-
 	}
 
+	/**
+	 * Runs the main application logic after Spring Boot starts.
+	 * Fetches restaurants for a default postcode and starts user input loop.
+	 *
+	 * @param args command-line arguments (not used)
+	 */
 	@Override
 	public void run(String[] args) {
-		//print the welcome text
 		printBanner();
 
-		// First run with hardcoded default postcode
 		String defaultPostcode = "EC4M7RF";
-		System.out.println("Fetching restaurants for default postcode: " + defaultPostcode);
-		fetchAndDisplay(defaultPostcode);  // Fetch and display for default postcode
+		System.out.println("Fetching restaurants for default postcode: " + defaultPostcode + "...");
+		fetchAndDisplay(defaultPostcode);
 
-		// Interactive Postcode Search
 		handleUserInput();
-
 	}
 
+	/**
+	 * Handles user interaction for entering postcodes and viewing restaurants.
+	 * Continues to prompt the user until they type 'exit'.
+	 */
 	private void handleUserInput() {
-		// Create a Scanner instance outside the loop to avoid opening/closing repeatedly
 		Scanner scanner = new Scanner(System.in);
 
-		// Loop for additional searches
 		while (true) {
-			// Ask the user to input a postcode or exit
 			System.out.print("Enter a UK postcode (or type 'exit' to quit): ");
-
-			String postcode = scanner.nextLine().trim();  // Read postcode from user
+			String postcode = scanner.nextLine().trim();
 
 			if (postcode.equalsIgnoreCase("exit")) {
 				System.out.println("Goodbye");
-				break;  // Exit the loop if the user wants to quit
+				break;
 			}
 
-			// Validate UK postcode format
 			if (!isValidPostcode(postcode)) {
 				System.out.println("- Invalid postcode format. Try again.\n");
-				continue;  // Ask again if the postcode format is invalid
+				continue;
 			}
 
-			// Fetch and display results for the valid postcode
 			fetchAndDisplay(postcode);
 		}
 
-		// Close the scanner after the loop ends to free up resources
 		scanner.close();
 	}
-
 
 	/**
 	 * Fetches, displays, and saves the top 10 restaurants for the given postcode.
@@ -97,8 +99,6 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	 * @param postcode A valid UK postcode
 	 */
 	private void fetchAndDisplay(String postcode) {
-
-		// Fetch restaurants and sort by rating (highest first)
 		List<RestaurantDto> restaurants = restaurantService.fetchRestaurants(postcode);
 		restaurants.sort(Comparator.comparingDouble(RestaurantDto::getRating).reversed());
 
@@ -107,11 +107,9 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 			return;
 		}
 
-		// Print the restaurant list to the console
 		System.out.println("\nTop 10 Restaurants for the postcode " + postcode + ": ");
 		int index = 1;
 		for (RestaurantDto r : restaurants) {
-			// Clean and format output fields
 			String cleanedName = r.getName().replaceAll("[^\\x00-\\x7F]", "").trim();
 			String cleanedAddress = r.getAddress()
 					.replaceAll("[^\\x00-\\x7F]", "")
@@ -121,8 +119,8 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 			String cleanedCuisines = r.getCuisines().stream()
 					.map(c -> c.replaceAll("[^\\x00-\\x7F]", "").trim())
 					.collect(Collectors.joining(", "));
+
 			String ratingStr;
-			// Color-based rating displaying
 			if (r.getRating() >= 4.0) {
 				ratingStr = GREEN + r.getRating() + RESET;
 			} else if (r.getRating() > 0 && r.getRating() < 2.5) {
@@ -133,8 +131,6 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 				ratingStr = CYAN + r.getRating() + RESET;
 			}
 
-
-			// Display each restaurant
 			System.out.println(WHITE_BOLD + index++ + ". " + cleanedName + RESET);
 			System.out.println("   Cuisines: " + cleanedCuisines);
 			System.out.println("   Rating: " + ratingStr);
@@ -142,15 +138,14 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 			System.out.println();
 		}
 
-		// Save the same results to a file
 		saveToFile(restaurants, postcode);
 	}
 
 	/**
-	 * Validates a UK postcode using a basic regex.
+	 * Validates a UK postcode using a basic regex pattern.
 	 *
 	 * @param postcode the postcode to validate
-	 * @return true if valid, false otherwise
+	 * @return true if the postcode is valid, false otherwise
 	 */
 	private boolean isValidPostcode(String postcode) {
 		String regex = "^[A-Z]{1,2}[0-9][0-9A-Z]?\\s?[0-9][A-Z]{2}$";
@@ -158,19 +153,17 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	}
 
 	/**
-	 * Writes the restaurant list to a local file called restaurants.txt
+	 * Saves the list of restaurants to a timestamped text file inside the FetchedRestaurants folder.
 	 *
 	 * @param restaurants the list of restaurant results
 	 * @param postcode    the postcode used to fetch the data
 	 */
 	private void saveToFile(List<RestaurantDto> restaurants, String postcode) {
-		// Create folder if it doesn't exist
 		File folder = new File("FetchedRestaurants");
 		if (!folder.exists()) {
 			folder.mkdir();
 		}
 
-		// Build filename: restaurants_EC4M7RF_20250401_1842.txt
 		String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 		String safePostcode = postcode.replaceAll("\\s+", "");
 		String filename = String.format("restaurants_%s_%s.txt", safePostcode.toUpperCase(), timestamp);
@@ -198,21 +191,21 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 				writer.println();
 			}
 
-			System.out.println("+ Results saved to FetchedRestaurants/" + filename + "\n");
+			System.out.println("+++ Results saved to FetchedRestaurants/" + filename + "\n");
 		} catch (IOException e) {
-			System.out.println("- Failed to save file: " + e.getMessage());
+			System.out.println("--- Failed to save file: " + e.getMessage());
 		}
 	}
 
-
+	/**
+	 * Prints a banner with app title and instructions at startup.
+	 */
 	private void printBanner() {
 		String banner = """
 		===========================================
 		     ! Welcome to TakeAway Restaurant Fetcher !
 		===========================================
-		Fetch top-rated restaurants in the UK by postcode.
 		""";
 		System.out.println(banner);
 	}
-
 }
