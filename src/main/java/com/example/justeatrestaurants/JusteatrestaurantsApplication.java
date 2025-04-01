@@ -78,7 +78,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	 *
 	 * @param postcode A valid UK postcode
 	 */
-	private void fetchAndDisplay(String postcode) {
+    void fetchAndDisplay(String postcode) {
 		// Obtain the restaurants
 		List<RestaurantDto> restaurants = restaurantService.fetchRestaurants(postcode);
 
@@ -134,7 +134,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	 * Handles user interaction for entering postcodes and viewing restaurants.
 	 * Continues to prompt the user until they type 'exit'.
 	 */
-	private void handleUserInput() {
+    void handleUserInput() {
 		Scanner scanner = new Scanner(System.in);
 
 		// Loop that allows users to query as many postcodes as they wish
@@ -164,7 +164,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	 * @param postcode the postcode to validate
 	 * @return true if the postcode is valid, false otherwise
 	 */
-	private boolean isValidPostcode(String postcode) {
+    boolean isValidPostcode(String postcode) {
 		// Regex for the UK-based postcodes
 		String regex = "^[A-Z]{1,2}[0-9][0-9A-Z]?\\s?[0-9][A-Z]{2}$";
 		return postcode.toUpperCase().matches(regex);
@@ -176,7 +176,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	 * @param restaurants the list of restaurant results
 	 * @param postcode    the postcode used to fetch the data
 	 */
-	private void saveToFile(List<RestaurantDto> restaurants, String postcode) {
+    void saveToFile(List<RestaurantDto> restaurants, String postcode) {
 		File folder = new File("FetchedRestaurants");
 		if (!folder.exists()) {
 			folder.mkdir();
@@ -218,7 +218,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	/**
 	 * Prints a banner with app title and instructions at startup.
 	 */
-	private void printBanner() {
+    void printBanner() {
 		String banner = """
 		==========================================
 		! Welcome to TakeAway Restaurant Fetcher !

@@ -25,4 +25,15 @@ class RestaurantServiceTest {
             assertNotNull(r.getAddress());
         }
     }
+
+    @Test
+    void testFetchRestaurants_invalidPostcodeReturnsEmpty() {
+        String invalidPostcode = "INVALID123";
+
+        List<RestaurantDto> restaurants = service.fetchRestaurants(invalidPostcode);
+
+        assertNotNull(restaurants, "List should not be null");
+        assertTrue(restaurants.isEmpty(), "Expected empty list for invalid postcode");
+    }
+
 }
