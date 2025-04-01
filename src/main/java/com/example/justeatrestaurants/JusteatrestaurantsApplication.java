@@ -43,29 +43,34 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	 */
 	@Override
 	public void run(String[] args) {
-		String postcode = "EC4M7RF"; // Example postcode from provided list
+		String postcode = "BS1 4DJ"; // Example postcode from provided list
 		List<RestaurantDto> restaurants = restaurantService.fetchRestaurants(postcode);
 
-		System.out.println("Top 10 Restaurants:");
+		System.out.println("Top 10 Restaurants around the postcode " + postcode + " are: ");
 		int index = 1;
-
 		for (RestaurantDto r : restaurants) {
-			// Remove non-ASCII characters for clean console output
-			String cleanedName = r.getName().replaceAll("[^\\x00-\\x7F]", "");
-			String cleanedAddress = r.getAddress().replaceAll("[^\\x00-\\x7F]", "");
+			// Clean up non-ASCII characters and trim whitespace
+			String cleanedName = r.getName().replaceAll("[^\\x00-\\x7F]", "").trim();
+			String cleanedAddress = r.getAddress()
+					.replaceAll("[^\\x00-\\x7F]", "")
+					.replaceAll(",", ", ") // Ensure spacing after commas
+					.replaceAll("\\s+", " ") // Collapse any double spaces
+					.trim();
+
 			String cleanedCuisines = r.getCuisines().stream()
-					.map(c -> c.replaceAll("[^\\x00-\\x7F]", ""))
+					.map(c -> c.replaceAll("[^\\x00-\\x7F]", "").trim())
 					.collect(Collectors.joining(", "));
 
-			// Handle missing ratings
+			// Show "Not Rated" for restaurants with no rating
 			String ratingStr = r.getRating() > 0 ? String.valueOf(r.getRating()) : "Not Rated";
 
-			// Display restaurant info
+			// Display output
 			System.out.println(index++ + ". " + cleanedName);
 			System.out.println("   Cuisines: " + cleanedCuisines);
 			System.out.println("   Rating: " + ratingStr);
 			System.out.println("   Address: " + cleanedAddress);
 			System.out.println();
 		}
+
 	}
 }
