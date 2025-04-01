@@ -127,9 +127,9 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 
 			// Display the information
 			System.out.println(ORANGE + index++ + ". " + cleanedName + RESET);
-			System.out.println(BOLD + space + "   Cuisines: " + cleanedCuisines + RESET);
-			System.out.println(BOLD + space + "   Rating: " + ratingStr + RESET);
-			System.out.println(BOLD + space + "   Address: " + cleanedAddress + RESET);
+			System.out.println(BOLD + space + "   Cuisines: " + RESET + cleanedCuisines);
+			System.out.println(BOLD + space + "   Rating: " + RESET + ratingStr);
+			System.out.println(BOLD + space + "   Address: " + RESET + cleanedAddress);
 			System.out.println();
 		}
 
