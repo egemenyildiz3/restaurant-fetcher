@@ -141,21 +141,20 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 			int index = 1;
 
 			for (RestaurantDto r : restaurants) {
-				String cleanedName = r.getName().replaceAll("[^\\x00-\\x7F]", "").trim();
-				String cleanedAddress = r.getAddress()
-						.replaceAll("[^\\x00-\\x7F]", "")
+				String name = r.getName().trim();
+				String address = r.getAddress()
 						.replaceAll(",", ", ")
 						.replaceAll("\\s+", " ")
 						.trim();
-				String cleanedCuisines = r.getCuisines().stream()
-						.map(c -> c.replaceAll("[^\\x00-\\x7F]", "").trim())
+				String cuisines = r.getCuisines().stream()
+						.map(String::trim)
 						.collect(Collectors.joining(", "));
 				String ratingStr = r.getRating() > 0 ? String.valueOf(r.getRating()) : "Not Rated";
 
-				writer.println(index++ + ". " + cleanedName);
-				writer.println("   Cuisines: " + cleanedCuisines);
+				writer.println(index++ + ". " + name);
+				writer.println("   Cuisines: " + cuisines);
 				writer.println("   Rating: " + ratingStr);
-				writer.println("   Address: " + cleanedAddress);
+				writer.println("   Address: " + address);
 				writer.println();
 			}
 

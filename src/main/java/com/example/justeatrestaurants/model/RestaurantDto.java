@@ -11,22 +11,22 @@ public class RestaurantDto {
     /**
      * Name of the restaurant.
      */
-    private String name;
+    private final String name;
 
     /**
      * List of cuisine types offered by the restaurant.
      */
-    private List<String> cuisines;
+    private final List<String> cuisines;
 
     /**
      * Star rating of the restaurant (such as 4.5).
      */
-    private double rating;
+    private final double rating;
 
     /**
      * Formatted address of the restaurant (such as "123 Street, SW1A 1AA").
      */
-    private String address;
+    private final String address;
 
     /**
      * Constructor for RestaurantDto.
