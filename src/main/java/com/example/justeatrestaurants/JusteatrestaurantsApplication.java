@@ -196,7 +196,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 		File outputFile = new File(folder, filename);
 
 		try (PrintWriter writer = new PrintWriter(outputFile)) {
-			writer.println("Top 10 Restaurants for Postcode " + postcode.toUpperCase() + ": ");
+			writer.println("Here is 10 Restaurants for Postcode " + postcode.toUpperCase() + ": ");
 
 			int index = 1;
 			// Add space for the indices that are powers of 10
