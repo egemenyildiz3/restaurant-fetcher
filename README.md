@@ -119,7 +119,7 @@ For example, if it’s in your `Downloads` folder:
 
 ## 📝 Assumptions & Notes
 
-- The goal was to clearly display the 4 required fields (name, cuisines, rating, address) in a readable way, not to build a graphical interface. The CLI format was chosen for production speed and clarity.
+- The goal was to clearly display the 4 required fields (name, cuisines, rating, address) in a readable way, not to build a graphical interface. The CLI format was chosen for production speed and clarity. It was assumed that the product owner/manager had good reasons to determine that the choice of UI was arbitrary and left to the developer.
 - The `cuisines` field in the API contains both actual cuisines (like "Thai") and platform tags (like "Low Delivery Fee" or "Cheeky Tuesday"). This is how the API structures the data, and I've displayed it as provided. I assume that sanitizing this input is not necessary as it is how the API is deliberately constructed.
 - I used the rating standards of Takeaway.com.
 - Descending sorting of the fetched events have been removed due to no specifications existing upon the displaying order.
