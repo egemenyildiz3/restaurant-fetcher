@@ -21,6 +21,8 @@ Even though this is a console app, I wanted to show how I would structure a real
 
 ## ✅ What the App Does
 
+### Functionality
+
 - Connects to the Just Eat API using a UK postcode
 - On startup, it fetches results for a **default hardcoded postcode**
 - After that, the user can enter more postcodes or type `exit` to quit
@@ -32,6 +34,40 @@ Even though this is a console app, I wanted to show how I would structure a real
     - Address
 - Saves the results to a `.txt` file inside a `FetchedRestaurants/` folder
 - Validates that postcodes match the UK format
+
+### 🧩 Implementation
+
+
+#### `JusteatrestaurantsApplication.java`
+- The main class and entry point of the app.
+- Implements `CommandLineRunner` to run logic after Spring Boot starts.
+- On startup:
+    - Fetches and displays the top 10 restaurants for a default hardcoded postcode.
+    - Then enters a loop where the user can input new postcodes or type `exit` to quit.
+- Validates input against a UK postcode regex.
+- Handles user input in a **separate thread** to avoid blocking Spring Boot.
+- Formats output with colors (based on rating) for improved readability in the terminal.
+
+#### `RestaurantService.java`
+- Sends a `GET` request to the Just Eat API using `RestTemplate`.
+- Extracts and maps relevant fields from the JSON response:
+    - Restaurant name
+    - Cuisines
+    - Rating
+    - Address
+- Returns a list of `RestaurantDto` objects.
+- Cleans up non-ASCII characters to ensure console and file output is safe.
+
+#### `RestaurantDto.java`
+- A simple Data Transfer Object (DTO) for holding restaurant details.
+- Contains:
+    - `name` (String)
+    - `cuisines` (List<String>)
+    - `rating` (double)
+    - `address` (String)
+- Used to cleanly transfer data between the service layer and the main application.
+
+
 
 ---
 
@@ -107,11 +143,11 @@ For example, if it’s in your `Downloads` folder:
 
        exit
 
-! Results will also be saved inside the `FetchedRestaurants/` folder.
+✅ Results will also be saved inside the `FetchedRestaurants/` folder.
 
 ---
 
-## 🔍 API Used, Given by the Assessment Centre
+## 🔍 API Used
 
     https://uk.api.just-eat.io/discovery/uk/restaurants/enriched/bypostcode/EC4M7RF
 
@@ -127,7 +163,6 @@ For example, if it’s in your `Downloads` folder:
 - The app only uses the 4 required fields: name, cuisines, rating, address.
 - The app handles missing ratings and special characters in API responses.
 - Invalid or incorrectly formatted postcodes are rejected.
-- By "proper displaying", I assumed it is meant
 
 ---
 
