@@ -69,6 +69,52 @@ Even though this is a console app, I wanted to show how I would structure a real
 
 
 
+
+### 📤 Example Output
+
+Note: In this file, colors, format changes and proper indentation could've not been displayed due to the format of this file.
+
+==========================================
+
+! Welcome to TakeAway Restaurant Fetcher !
+
+==========================================
+
+Fetching restaurants for default postcode: EC4M7RF...
+
+Top 10 Restaurants for the postcode EC4M7RF:
+1. Poke House - St. Paul's
+
+   Cuisines: Poke, Healthy, Collect stamps, Low Delivery Fee, Deals, 8 off
+   
+    Rating: 4.4
+   
+    Address: 25-27 Ludgate Hill, EC4M 7JR
+
+
+2. Al-Baik Pizza
+
+   Cuisines: Pizza, American, Halal, Low Delivery Fee, Deals
+
+   Rating: 4.3
+
+   Address: 111 Kennington Road, SE11 6SF
+
+
+3. Longdan Camden
+
+   Cuisines: Convenience, Collect stamps, Low Delivery Fee, Deals, Groceries
+  
+   Rating: 4.5 
+
+   Address: 15-21 Parkway, NW1 7PG
+
+[Goes on for 10 resturants in total]
+
+Results saved to FetchedRestaurants/restaurants_EC4M7RF_20250402_151410.txt
+
+Enter a UK postcode (or type 'exit' to quit):
+
 ---
 
 ## 🚀 How to Build and Run the App
