@@ -242,3 +242,62 @@ Example:
 If you have any questions, feel free to reach out via egemenyildiz03@gmail.com.  
 
 Thank you for reviewing my project!
+
+---
+
+## 🔁 Alternative Solution
+If you want to see a different solution of mine, I also made a Python version of this app.
+This is a very basic script that does virtually the same thing, especially in terms of backend. The reason
+why I did not focus on this solution more is the because I wanted to create a scalable and extendable solution
+while displaying my skills in Java and its corresponding frameworks and technologies.
+
+You can find it here:
+
+```
+import requests
+from typing import List
+
+class RestaurantDto:
+    def __init__(self, name, cuisines, rating, address):
+        self.name = name
+        self.cuisines = cuisines
+        self.rating = rating
+        self.address = address
+    
+def fetch_restaurant_info(postcode: str) -> List[RestaurantDto]:
+    url = f"https://uk.api.just-eat.io/discovery/uk/restaurants/enriched/bypostcode/{postcode}"
+    restaurants = []
+    headers = {
+        'User-Agent': 'Mozilla/5.0',
+        'Accept': 'application/json',
+        'Referer': 'https://www.just-eat.co.uk/'
+    }
+    
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        restaurant_nodes = response.json().get("restaurants", [])
+        
+        for r in restaurant_nodes[:10]:
+            name = r.get("name", "")
+            rating = r.get("rating", {}).get("starRating", 0.0)
+            address = f"{r.get('address', {}).get('firstLine', '')}, {r.get('address', {}).get('postalCode', '')}"
+            
+            cuisines = [c.get("name", "") for c in r.get("cuisines", [])]
+            restaurants.append(RestaurantDto(name, cuisines, rating, address))
+            
+    except Exception as e:
+        print(f"Error: {e}")
+        
+    return restaurants
+
+if __name__ == "__main__":
+    postcode = "M17FA"
+    restaurants = fetch_restaurant_info(postcode)
+    print(f"\nFound {len(restaurants)} restaurants from {postcode}:\n")
+    for i, restaurant in enumerate(restaurants, 1):
+        print(f"{i}. {restaurant.name}")
+        print(f"   Cuisines: {', '.join(restaurant.cuisines)}")
+        print(f"   Rating: {restaurant.rating}")
+        print(f"   Address: {restaurant.address}")
+        print()
