@@ -62,7 +62,7 @@ Even though this is a console app, I wanted to show how I would structure a real
 - A simple Data Transfer Object (DTO) for holding restaurant details.
 - Contains:
     - `name` (String)
-    - `cuisines` (List<String>)
+    - `cuisines` (List<String>) (sanitized; "tags" are separated from cuisines)
     - `rating` (double)
     - `address` (String)
 - Used to cleanly transfer data between the service layer and the main application.
@@ -85,7 +85,7 @@ Fetching restaurants for default postcode: EC4M7RF...
 Top 10 Restaurants for the postcode EC4M7RF:
 1. Poke House - St. Paul's
 
-   Cuisines: Poke, Healthy, Collect stamps, Low Delivery Fee, Deals, 8 off
+   Cuisines: Poke, Healthy
    
     Rating: 4.4
    
@@ -94,7 +94,7 @@ Top 10 Restaurants for the postcode EC4M7RF:
 
 2. Al-Baik Pizza
 
-   Cuisines: Pizza, American, Halal, Low Delivery Fee, Deals
+   Cuisines: Pizza, American, Halal
 
    Rating: 4.3
 
@@ -103,7 +103,7 @@ Top 10 Restaurants for the postcode EC4M7RF:
 
 3. Longdan Camden
 
-   Cuisines: Convenience, Collect stamps, Low Delivery Fee, Deals, Groceries
+   Cuisines: Convenience
   
    Rating: 4.5 
 
@@ -202,7 +202,7 @@ For example, if it’s in your `Downloads` folder:
 ## 📝 Assumptions & Notes
 
 - The goal was to clearly display the 4 required fields (name, cuisines, rating, address) in a readable way, not to build a graphical interface. The CLI format was chosen for production speed and clarity. It was assumed that the product owner/manager had good reasons to determine that the choice of UI was arbitrary and left to the developer.
-- The `cuisines` field in the API contains both actual cuisines (like "Thai") and platform tags (like "Low Delivery Fee" or "Cheeky Tuesday"). This is how the API structures the data, and I've displayed it as provided. I assume that sanitizing this input is not necessary as it is how the API is deliberately constructed.
+- "Cuisine"s are tags that imply the type of food/restaurant. For example, "Pizza" is a cuisine, while "Takeaway" is not. However, "grocery" is considered still, as it indicates the type of the restaurant. Thus, the app ignores the other tags.
 - I used the rating standards of Takeaway.com.
 - Descending sorting of the fetched events have been removed due to no specifications existing upon the displaying order.
 - I assumed the API structure remains stable (field names don’t change).
@@ -248,8 +248,8 @@ Thank you for reviewing my project!
 
 ## 🔁 Alternative Solution
 If you want to see a different solution of mine, I also made a Python version of this app.
-This is a very basic script that does virtually the same thing, especially in terms of backend. The reason
-why I did not focus on this solution more is the because I wanted to create a scalable and extendable solution
+This is a very basic script that does almost the same thing, especially in terms of backend. The reason
+why I did not focus on this solution more is because I wanted to create a scalable and extendable solution
 while displaying my skills in Java and its corresponding frameworks and technologies.
 
 You can find it here:

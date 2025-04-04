@@ -8,6 +8,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Service responsible for fetching and processing restaurant data
@@ -18,6 +20,19 @@ public class RestaurantService {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    /**
+     * Set of tags that are not considered cuisines.
+     * These tags are filtered out from the list of cuisines.
+     */
+    private static final Set<String> NON_CUISINE_TAGS = Set.of(
+            "Low Delivery Fee", "Deals", "Collect stamps", "Cheeky Tuesday",
+            "Lunch", "Breakfast", "Freebies", "£8 off",
+            "Shops", "Pharmacy", "All Night Alcohol", "Gifts", "Electronics",
+            "Health and Beauty"
+            // The division of tags is subjective and may change over time/after the feedback of product owner
+    );
+
 
     /**
      * Default constructor initializing RestTemplate.
@@ -55,10 +70,16 @@ public class RestaurantService {
                         r.path("address").path("postalCode").asText();
 
                 // Extract list of cuisines
-                List<String> cuisines = new ArrayList<>();
+                List<String> rawCuisines = new ArrayList<>();
                 for (JsonNode c : r.path("cuisines")) {
-                    cuisines.add(c.path("name").asText());
+                    rawCuisines.add(c.path("name").asText());
                 }
+
+                // Filter out non-cuisine tags
+                List<String> cuisines = rawCuisines.stream()
+                        .filter(c -> !NON_CUISINE_TAGS.contains(c))
+                        .collect(Collectors.toList());
+
 
                 // Create DTO and add to the result list
                 restaurants.add(new RestaurantDto(name, cuisines, rating, address));
