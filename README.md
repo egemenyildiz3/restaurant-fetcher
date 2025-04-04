@@ -212,8 +212,9 @@ For example, if it’s in your `Downloads` folder:
 
 ---
 
-## 🛠️ Improvements I would Make With More Time
+## 🛠️ Improvements I Would Make
 
+- Have jpackage or similar to create a native executable for the app, so that dowloading java for setup is not required.
 - Emojis do not work for many terminals, so was removed. Could work on that more.
 - Have a postcode detector by IP address of the users.
 - Route detector and distance calculator for users based on their location for user-friendliness.
