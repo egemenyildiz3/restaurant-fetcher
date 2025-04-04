@@ -74,7 +74,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	}
 
 	/**
-	 * Fetches, displays, and saves the top 10 restaurants for the given postcode.
+	 * Fetches, displays, and saves the first 10 restaurants for the given postcode.
 	 *
 	 * @param postcode A valid UK postcode
 	 */
@@ -90,7 +90,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 			return;
 		}
 
-		System.out.println(BOLD + "\nTop 10 Restaurants for the postcode " + postcode.toUpperCase() + ":" + RESET);
+		System.out.println(BOLD + "\nHere is 10 Restaurants for Postcode " + postcode.toUpperCase() + ":" + RESET);
 
 		int index = 1;
 		// Add space for the indices that are powers of 10
