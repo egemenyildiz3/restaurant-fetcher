@@ -3,7 +3,9 @@ package com.example.justeatrestaurants;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -82,22 +84,53 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 		// Obtain the restaurants
 		List<RestaurantDto> restaurants = restaurantService.fetchRestaurants(postcode);
 
-		// Sort them by descending rating (Not all the restaurants, only the top 10 we consider)
-		// restaurants.sort(Comparator.comparingDouble(RestaurantDto::getRating).reversed());
-
+		// Check if the list is empty
 		if (restaurants.isEmpty()) {
 			System.out.println("No restaurants found for postcode " + postcode.toUpperCase() + "\n");
 			return;
 		}
 
-		System.out.println(BOLD + "\nHere is 10 Restaurants for Postcode " + postcode.toUpperCase() + ":" + RESET);
+		// Ask the user how they want to sort the restaurants
+		Scanner sc = new Scanner(System.in);
+		System.out.print("Do you want to sort the restaurants by rating descendingly or ascendingly? (desc/asc): ");
+
+		String input = sc.next().trim().toLowerCase();
+
+		if (input.equals("desc")) {
+			restaurants.sort(Comparator.comparingDouble(RestaurantDto::getRating).reversed());
+		}
+		else if (input.equals("asc")) {
+			restaurants.sort(Comparator.comparingDouble(RestaurantDto::getRating));
+		}
+		else {
+			System.out.println("- Invalid input. Defaulting to descending order.\n");
+			restaurants.sort(Comparator.comparingDouble(RestaurantDto::getRating).reversed());
+		}
+
+		// Ask the user how many restaurants they want to see
+		int howMany = -1;
+		while (howMany<0) {
+			System.out.print("How many restaurants would you like to see? (0 to " + restaurants.size() + "): ");
+			howMany = sc.nextInt();
+
+			if (howMany < 0) {
+				System.out.println("- Invalid number. Please try again.\n");
+				howMany = -1;
+			}
+		}
+
+		// Display the sorted restaurants
+		String sorting = input.equals("desc") ? "descendingly" : "ascendingly";
+
+		System.out.println(BOLD + "\nHere is 10 Restaurants for Postcode " + postcode.toUpperCase() + " " +  sorting + ":" + RESET);
 
 		int index = 1;
 		// Add space for the indices that are powers of 10
 		StringBuilder space = new StringBuilder();
 
 		// Create the corresponding strings for displaying
-		for (RestaurantDto r : restaurants) {
+		for (int i = 0; i<Math.min(restaurants.size(), howMany); i++) {
+			RestaurantDto r = restaurants.get(i);
 			String cleanedName = r.getName().replaceAll("[^\\x00-\\x7F]", "").trim();
 			String cleanedAddress = r.getAddress()
 					.replaceAll("[^\\x00-\\x7F]", "")
@@ -159,8 +192,12 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 				System.out.println("- Invalid postcode format. Try again.\n");
 				continue;
 			}
+			//fetch the sorting input
 
+			//pass it to fetch and display which would pass it to the service function
 			fetchAndDisplay(postcode);
+
+
 		}
 
 		scanner.close();

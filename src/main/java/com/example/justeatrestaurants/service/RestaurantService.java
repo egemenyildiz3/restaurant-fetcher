@@ -20,6 +20,7 @@ public class RestaurantService {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ServerConnection serverConnection;
 
     /**
      * Set of tags that are not considered cuisines.
@@ -39,6 +40,7 @@ public class RestaurantService {
      */
     public RestaurantService() {
         this.restTemplate = new RestTemplate();
+        this.serverConnection = new ServerConnection();
     }
 
     /**
@@ -50,7 +52,7 @@ public class RestaurantService {
      */
     public List<RestaurantDto> fetchRestaurants(String postcode) {
         String url = "https://uk.api.just-eat.io/discovery/uk/restaurants/enriched/bypostcode/" + postcode;
-        String json = restTemplate.getForObject(url, String.class);
+        String json = serverConnection.getServerResponse(url);
 
         List<RestaurantDto> restaurants = new ArrayList<>();
 
@@ -60,8 +62,7 @@ public class RestaurantService {
             JsonNode restaurantNodes = root.path("restaurants");
 
             // Limit to first 10 restaurants
-            for (int i = 0; i < Math.min(10, restaurantNodes.size()); i++) {
-                JsonNode r = restaurantNodes.get(i);
+            for (JsonNode r : restaurantNodes) {
 
                 // Extract restaurant name, rating, and address
                 String name = r.path("name").asText();
