@@ -1,12 +1,13 @@
 package com.example.justeatrestaurants.model;
 
+import java.util.Comparator;
 import java.util.List;
 
 /**
  * Data Transfer Object (DTO) representing a simplified view
  * of restaurant information fetched from the Just Eat API.
  */
-public class RestaurantDto {
+public class RestaurantDto implements Comparable<RestaurantDto> {
 
     /**
      * Name of the restaurant.
@@ -69,5 +70,17 @@ public class RestaurantDto {
      */
     public String getAddress() {
         return address;
+    }
+
+    /**
+     * Compare this RestaurantDto with another based on rating.
+     *
+     * @param other The other RestaurantDto to compare with
+     * @return A negative integer, zero, or a positive integer as this
+     *         object is less than, equal to, or greater than the specified object
+     */
+    @Override
+    public int compareTo(RestaurantDto other) {
+        return Double.compare(this.rating, other.rating);
     }
 }

@@ -10,6 +10,7 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import com.example.justeatrestaurants.controller.RestaurantController;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -262,42 +263,46 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 		String filename = String.format("restaurants_%s_%s.txt", safePostcode.toUpperCase(), timestamp);
 		File outputFile = new File(folder, filename);
 
+
 		try (PrintWriter writer = new PrintWriter(outputFile)) {
-			writer.println("Here is 10 Restaurants for Postcode " + postcode.toUpperCase() + ": ");
-
-			int index = 1;
-			// Add space for the indices that are powers of 10
-			StringBuilder space = new StringBuilder();
-
-			for (RestaurantDto r : restaurants) {
-				String name = r.getName().trim();
-				String address = r.getAddress()
-						.replaceAll(",", ", ")
-						.replaceAll("\\s+", " ")
-						.trim();
-				String cuisines = r.getCuisines().stream()
-						.map(String::trim)
-						.collect(Collectors.joining(", "));
-				String ratingStr = r.getRating() > 0 ? String.valueOf(r.getRating()) : "Not Rated";
-
-				writer.println(index++ + ". " + name);
-
-				// Add a space if index gets a new digit, so that the name and the presented values are aligned.
-				if (index == 10 || index == 100 || index == 1000) {
-					space.append(" ");
-				}
-
-				writer.println(space + "   Cuisines: " + cuisines);
-				writer.println(space + "   Rating: " + ratingStr);
-				writer.println(space + "   Address: " + address);
-				writer.println();
-			}
-
+//			writer.println("Here is 10 Restaurants for Postcode " + postcode.toUpperCase() + ": ");
+//
+//			int index = 1;
+//			// Add space for the indices that are powers of 10
+//			StringBuilder space = new StringBuilder();
+//
+//			for (RestaurantDto r : restaurants) {
+//				String name = r.getName().trim();
+//				String address = r.getAddress()
+//						.replaceAll(",", ", ")
+//						.replaceAll("\\s+", " ")
+//						.trim();
+//				String cuisines = r.getCuisines().stream()
+//						.map(String::trim)
+//						.collect(Collectors.joining(", "));
+//				String ratingStr = r.getRating() > 0 ? String.valueOf(r.getRating()) : "Not Rated";
+//
+//				writer.println(index++ + ". " + name);
+//
+//				// Add a space if index gets a new digit, so that the name and the presented values are aligned.
+//				if (index == 10 || index == 100 || index == 1000) {
+//					space.append(" ");
+//				}
+//
+//				writer.println(space + "   Cuisines: " + cuisines);
+//				writer.println(space + "   Rating: " + ratingStr);
+//				writer.println(space + "   Address: " + address);
+//				writer.println();
+//			}
+			String json = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(restaurants);
+			writer.write(json);
 			System.out.println("Results saved to FetchedRestaurants/" + filename + "\n");
 		} catch (IOException e) {
 			System.out.println("Failed to save file: " + e.getMessage());
 		}
 	}
+
+
 
 	/**
 	 * Prints a banner with app title and instructions at startup.
