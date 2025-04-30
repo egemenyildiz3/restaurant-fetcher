@@ -1,12 +1,15 @@
 package com.example.justeatrestaurants.service;
 
+import com.example.justeatrestaurants.JusteatrestaurantsApplication;
 import com.example.justeatrestaurants.model.RestaurantDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,10 +51,18 @@ public class RestaurantService {
      * @param postcode UK postcode (such as "EC4M7RF")
      * @return List of RestaurantDto objects with name, cuisines, rating, and address
      */
-    public List<RestaurantDto> fetchRestaurants(String postcode) {
+    public List<RestaurantDto> fetchRestaurants(String postcode, JusteatrestaurantsApplication.SortType sortType,
+                                                int amount, double minRating) {
         String url = "https://uk.api.just-eat.io/discovery/uk/restaurants/enriched/bypostcode/" + postcode;
         String json = restTemplate.getForObject(url, String.class);
 
+        // Save the JSON response to a file
+        try (PrintWriter writer = new PrintWriter("FetchedRestaurants/response_" + postcode + ".json")) {
+            assert json != null;
+            writer.write(json);
+        } catch (Exception e) {
+            System.out.println("Failed to save JSON file: " + e.getMessage());
+        }
         List<RestaurantDto> restaurants = new ArrayList<>();
 
         try {
@@ -60,8 +71,7 @@ public class RestaurantService {
             JsonNode restaurantNodes = root.path("restaurants");
 
             // Limit to first 10 restaurants
-            for (int i = 0; i < Math.min(10, restaurantNodes.size()); i++) {
-                JsonNode r = restaurantNodes.get(i);
+            for (JsonNode r : restaurantNodes) {
 
                 // Extract restaurant name, rating, and address
                 String name = r.path("name").asText();
@@ -82,13 +92,24 @@ public class RestaurantService {
 
 
                 // Create DTO and add to the result list
-                restaurants.add(new RestaurantDto(name, cuisines, rating, address));
+                if (rating >= minRating) {
+                    restaurants.add(new RestaurantDto(name, cuisines, rating, address));
+                }
             }
 
         } catch (Exception e) {
             System.out.println("Error parsing JSON file: " + e.getMessage());
         }
 
-        return restaurants;
+        if (sortType == JusteatrestaurantsApplication.SortType.ASCENDING) {
+            // Sort the restaurants by ascending rating
+            restaurants.sort(Comparator.comparingDouble(RestaurantDto::getRating));
+        } else if (sortType == JusteatrestaurantsApplication.SortType.DESCENDING) {
+            // Sort the restaurants by descending rating
+            restaurants.sort(Comparator.comparingDouble(RestaurantDto::getRating).reversed());
+        }
+
+
+        return restaurants.stream().limit(Math.min(amount, restaurants.size())).collect(Collectors.toList());
     }
 }

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+import com.example.justeatrestaurants.controller.RestaurantController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -37,6 +38,17 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	@Autowired
 	private RestaurantService restaurantService;
 
+	@Autowired
+	private RestaurantController restaurantController;
+
+	public enum SortType {
+		NO_SORT,
+		ASCENDING,
+		DESCENDING
+	}
+
+	private static String choice = "cli";
+
 	/**
 	 * Main method to launch the application.
 	 *
@@ -44,9 +56,18 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	 */
 	public static void main(String[] args) {
 		// Disable the web server — only need a console app
-		SpringApplication app = new SpringApplication(JusteatrestaurantsApplication.class);
-		app.setWebApplicationType(WebApplicationType.NONE);
-		app.run(args);
+		choice = choiceGetter();
+		if (choice.equalsIgnoreCase("cli")) {
+			// Run the CLI application
+			SpringApplication app = new SpringApplication(JusteatrestaurantsApplication.class);
+			app.setWebApplicationType(WebApplicationType.NONE);
+			app.run(args);
+		} else {
+			// Run the web application
+			SpringApplication.run(JusteatrestaurantsApplication.class, args);
+
+		}
+
 	}
 
 	/**
@@ -57,6 +78,10 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	 */
 	@Override
 	public void run(String[] args) {
+		if (choice.equalsIgnoreCase("webapp")) {
+			System.out.println("Web application is running. Visit http://localhost:8080/restaurants");
+			return;
+		}
 		// Run the welcoming banner
 		printBanner();
 
@@ -67,10 +92,21 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 		System.out.println("Fetching restaurants for default postcode: " + defaultPostcode + "...");
 
 		// Helper function for fetching the list from the API and presenting it in the CLI
-		fetchAndDisplay(defaultPostcode);
+		fetchAndDisplay(defaultPostcode,SortType.NO_SORT, 10, 0);
 
 		// Additional functionality that allows users to enter their own queries
 		handleUserInput();
+	}
+
+	/**
+	 * Gets the user's choice of application type (CLI or Web).
+	 *
+	 * @return the user's choice
+	 */
+	private static String choiceGetter() {
+		Scanner scanner = new Scanner(System.in);
+		System.out.print("Choose the application type (cli/webapp): ");
+        return scanner.nextLine().trim();
 	}
 
 	/**
@@ -78,9 +114,9 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	 *
 	 * @param postcode A valid UK postcode
 	 */
-    void fetchAndDisplay(String postcode) {
+    void fetchAndDisplay(String postcode, SortType sortType, int amount, double minRating) {
 		// Obtain the restaurants
-		List<RestaurantDto> restaurants = restaurantService.fetchRestaurants(postcode);
+		List<RestaurantDto> restaurants = (List<RestaurantDto>) restaurantController.viewRestaurants(postcode, sortType, amount, minRating).getModel().get("restaurants");
 
 		// Sort them by descending rating (Not all the restaurants, only the top 10 we consider)
 		// restaurants.sort(Comparator.comparingDouble(RestaurantDto::getRating).reversed());
@@ -160,7 +196,38 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 				continue;
 			}
 
-			fetchAndDisplay(postcode);
+			System.out.print("Enter sort type (asc, desc, no sort): ");
+			String sortTypeInput = scanner.nextLine().trim();
+			SortType sortType = SortType.NO_SORT;
+			if (sortTypeInput.equalsIgnoreCase("asc")) {
+				sortType = SortType.ASCENDING;
+			} else if (sortTypeInput.equalsIgnoreCase("desc")) {
+				sortType = SortType.DESCENDING;
+			}
+
+			System.out.print("Enter how many restaurants you want to see: ");
+			int amount = 10;
+			try {
+				amount = Integer.parseInt(scanner.nextLine().trim());
+				if (amount < 1) {
+					System.out.println("- Invalid number. Defaulting to 10.\n");
+				}
+			} catch (NumberFormatException e) {
+				System.out.println("- Invalid number. Defaulting to 10.\n");
+			}
+
+			System.out.print("Enter minimum rating (0-5): ");
+			double minRating = 0;
+			try {
+				minRating = Double.parseDouble(scanner.nextLine().trim());
+				if (minRating < 0 || minRating > 5.0) {
+					System.out.println("- Invalid rating. Defaulting to 0.\n");
+				}
+			} catch (NumberFormatException e) {
+				System.out.println("- Invalid rating. Defaulting to 0.\n");
+			}
+
+			fetchAndDisplay(postcode, sortType, amount, minRating);
 		}
 
 		scanner.close();
@@ -244,3 +311,4 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 		System.out.println(banner);
 	}
 }
+
