@@ -17,6 +17,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.example.justeatrestaurants.model.RestaurantDto;
 import com.example.justeatrestaurants.service.RestaurantService;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 
 /**
  * Entry point for the Just Eat Restaurant Viewer Console Application.
@@ -36,6 +37,12 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 
 	@Autowired
 	private RestaurantService restaurantService;
+
+	public enum SortType {
+		ASCENDING,
+		DESCENDING,
+		NO_SORT
+	}
 
 	/**
 	 * Main method to launch the application.
@@ -67,7 +74,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 		System.out.println("Fetching restaurants for default postcode: " + defaultPostcode + "...");
 
 		// Helper function for fetching the list from the API and presenting it in the CLI
-		fetchAndDisplay(defaultPostcode);
+		fetchAndDisplay(defaultPostcode, SortType.NO_SORT);
 
 		// Additional functionality that allows users to enter their own queries
 		handleUserInput();
@@ -78,9 +85,9 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	 *
 	 * @param postcode A valid UK postcode
 	 */
-    void fetchAndDisplay(String postcode) {
+    void fetchAndDisplay(String postcode, SortType sortType) {
 		// Obtain the restaurants
-		List<RestaurantDto> restaurants = restaurantService.fetchRestaurants(postcode);
+		List<RestaurantDto> restaurants = restaurantService.fetchRestaurants(postcode, sortType);
 
 		// Sort them by descending rating (Not all the restaurants, only the top 10 we consider)
 		// restaurants.sort(Comparator.comparingDouble(RestaurantDto::getRating).reversed());
@@ -160,7 +167,22 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 				continue;
 			}
 
-			fetchAndDisplay(postcode);
+			System.out.println("Enter how to sort (asc/desc/no)");
+			String sortTypeText = scanner.nextLine().trim();
+
+			SortType sortType;
+
+			if (sortTypeText.equalsIgnoreCase("asc")) {
+				sortType = SortType.ASCENDING;
+			}
+			else if (sortTypeText.equalsIgnoreCase("desc")) {
+				sortType = SortType.DESCENDING;
+			}
+			else {
+				sortType = SortType.NO_SORT;
+			}
+
+			fetchAndDisplay(postcode, sortType);
 		}
 
 		scanner.close();
@@ -179,7 +201,7 @@ public class JusteatrestaurantsApplication implements CommandLineRunner {
 	}
 
 	/**
-	 * Saves the list of restaurants to a timestamped text file inside the FetchedRestaurants folder.
+	 * Saves the list of restaurants  to a timestamped text file inside the FetchedRestaurants folder.
 	 *
 	 * @param restaurants the list of restaurant results
 	 * @param postcode    the postcode used to fetch the data

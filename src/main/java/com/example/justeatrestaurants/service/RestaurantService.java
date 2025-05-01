@@ -1,5 +1,6 @@
 package com.example.justeatrestaurants.service;
 
+import com.example.justeatrestaurants.JusteatrestaurantsApplication;
 import com.example.justeatrestaurants.model.RestaurantDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,8 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -48,47 +51,43 @@ public class RestaurantService {
      * @param postcode UK postcode (such as "EC4M7RF")
      * @return List of RestaurantDto objects with name, cuisines, rating, and address
      */
-    public List<RestaurantDto> fetchRestaurants(String postcode) {
+
+    public List<RestaurantDto> fetchRestaurants(String postcode, JusteatrestaurantsApplication.SortType sortType) {
+        List<RestaurantDto> list = new ArrayList<>();
+
         String url = "https://uk.api.just-eat.io/discovery/uk/restaurants/enriched/bypostcode/" + postcode;
         String json = restTemplate.getForObject(url, String.class);
 
-        List<RestaurantDto> restaurants = new ArrayList<>();
-
         try {
-            // Parse the JSON response into a tree structure
             JsonNode root = objectMapper.readTree(json);
-            JsonNode restaurantNodes = root.path("restaurants");
+            JsonNode restaurants = root.path("restaurants");
 
-            // Limit to first 10 restaurants
-            for (int i = 0; i < Math.min(10, restaurantNodes.size()); i++) {
-                JsonNode r = restaurantNodes.get(i);
-
-                // Extract restaurant name, rating, and address
+            for (JsonNode r : restaurants) {
                 String name = r.path("name").asText();
                 double rating = r.path("rating").path("starRating").asDouble();
                 String address = r.path("address").path("firstLine").asText() + ", " +
                         r.path("address").path("postalCode").asText();
-
-                // Extract list of cuisines
                 List<String> rawCuisines = new ArrayList<>();
                 for (JsonNode c : r.path("cuisines")) {
                     rawCuisines.add(c.path("name").asText());
                 }
+                List<String> cuisines = rawCuisines.stream().filter(c -> !NON_CUISINE_TAGS.contains(c)).toList();
 
-                // Filter out non-cuisine tags
-                List<String> cuisines = rawCuisines.stream()
-                        .filter(c -> !NON_CUISINE_TAGS.contains(c))
-                        .collect(Collectors.toList());
+                list.add(new RestaurantDto(name, cuisines, rating, address));
 
-
-                // Create DTO and add to the result list
-                restaurants.add(new RestaurantDto(name, cuisines, rating, address));
             }
-
-        } catch (Exception e) {
-            System.out.println("Error parsing JSON file: " + e.getMessage());
+        }
+        catch (Exception e) {
+            System.out.println("Error" + e.getMessage());
         }
 
-        return restaurants;
+        if (sortType == JusteatrestaurantsApplication.SortType.ASCENDING) {
+            list.sort(Comparator.comparingDouble(RestaurantDto::getRating));
+        }
+        else if (sortType == JusteatrestaurantsApplication.SortType.DESCENDING) {
+            list.sort(Comparator.comparingDouble(RestaurantDto::getRating).reversed());
+        }
+
+        return list;
     }
 }

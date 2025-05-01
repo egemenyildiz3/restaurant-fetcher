@@ -1,5 +1,6 @@
 package com.example.justeatrestaurants.service;
 
+import com.example.justeatrestaurants.JusteatrestaurantsApplication;
 import com.example.justeatrestaurants.model.RestaurantDto;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +15,7 @@ class RestaurantServiceTest {
     @Test
     void testFetchRestaurants_returnsResults() {
         String testPostcode = "EC4M7RF"; // reliable postcode
-        List<RestaurantDto> restaurants = service.fetchRestaurants(testPostcode);
+        List<RestaurantDto> restaurants = service.fetchRestaurants(testPostcode, JusteatrestaurantsApplication.SortType.NO_SORT);
 
         assertNotNull(restaurants);
         assertFalse(restaurants.isEmpty(), "Expected non-empty restaurant list");
@@ -30,7 +31,7 @@ class RestaurantServiceTest {
     void testFetchRestaurants_invalidPostcodeReturnsEmpty() {
         String invalidPostcode = "INVALID123";
 
-        List<RestaurantDto> restaurants = service.fetchRestaurants(invalidPostcode);
+        List<RestaurantDto> restaurants = service.fetchRestaurants(invalidPostcode, JusteatrestaurantsApplication.SortType.NO_SORT);
 
         assertNotNull(restaurants, "List should not be null");
         assertTrue(restaurants.isEmpty(), "Expected empty list for invalid postcode");

@@ -49,22 +49,37 @@ class JusteatrestaurantsApplicationTest {
                 new RestaurantDto("Burger Hub", List.of("American", "Burgers"), 3.2, "456 Meal Rd, London")
         ));
 
-        when(restaurantService.fetchRestaurants("EC4M7RF")).thenReturn(mockList);
+        when(restaurantService.fetchRestaurants("EC4M7RF", JusteatrestaurantsApplication.SortType.NO_SORT)).thenReturn(mockList);
 
-        app.fetchAndDisplay("EC4M7RF");
+        app.fetchAndDisplay("EC4M7RF", JusteatrestaurantsApplication.SortType.NO_SORT);
 
-        verify(restaurantService).fetchRestaurants("EC4M7RF");
+        verify(restaurantService).fetchRestaurants("EC4M7RF", JusteatrestaurantsApplication.SortType.NO_SORT);
     }
+
+    @Test
+    void testOrder_validOnes() {
+        List<RestaurantDto> mockList = new ArrayList<>(List.of(
+                new RestaurantDto("Pizza Palace", List.of("Italian", "Pizza"), 2.5, "123 Food St, London"),
+                new RestaurantDto("Burger Hub", List.of("American", "Burgers"), 3.2, "456 Meal Rd, London")
+        ));
+
+        when(restaurantService.fetchRestaurants("EC4M7RF", JusteatrestaurantsApplication.SortType.DESCENDING)).thenReturn(mockList);
+
+        app.fetchAndDisplay("EC4M7RF", JusteatrestaurantsApplication.SortType.DESCENDING);
+
+        verify(restaurantService).fetchRestaurants("EC4M7RF", JusteatrestaurantsApplication.SortType.DESCENDING);
+    }
+
 
 
     @Test
     void testFetchAndDisplay_withNoResults() {
         List<RestaurantDto> emptyList = new ArrayList<>();
-        when(restaurantService.fetchRestaurants("EMPTY")).thenReturn(emptyList);
+        when(restaurantService.fetchRestaurants("EMPTY", JusteatrestaurantsApplication.SortType.NO_SORT)).thenReturn(emptyList);
 
-        app.fetchAndDisplay("EMPTY");
+        app.fetchAndDisplay("EMPTY", JusteatrestaurantsApplication.SortType.NO_SORT);
 
-        verify(restaurantService).fetchRestaurants("EMPTY");
+        verify(restaurantService).fetchRestaurants("EMPTY", JusteatrestaurantsApplication.SortType.NO_SORT);
     }
 
     @Test
@@ -113,11 +128,11 @@ class JusteatrestaurantsApplicationTest {
                 new RestaurantDto("Mock Diner", List.of("British"), 4.0, "123 Mock Street")
         ));
 
-        when(restaurantService.fetchRestaurants("W1A1AA")).thenReturn(mockList);
+        when(restaurantService.fetchRestaurants("W1A1AA", JusteatrestaurantsApplication.SortType.NO_SORT)).thenReturn(mockList);
 
         app.handleUserInput();
 
-        verify(restaurantService).fetchRestaurants("W1A1AA");
+        verify(restaurantService).fetchRestaurants("W1A1AA", JusteatrestaurantsApplication.SortType.NO_SORT);
     }
 
     @Test
@@ -128,11 +143,11 @@ class JusteatrestaurantsApplicationTest {
         List<RestaurantDto> mockList = new ArrayList<>(List.of(
                 new RestaurantDto("Mock Spot", List.of("Indian"), 3.9, "1 Curry Ln")
         ));
-        when(restaurantService.fetchRestaurants("EC4M7RF")).thenReturn(mockList);
+        when(restaurantService.fetchRestaurants("EC4M7RF", JusteatrestaurantsApplication.SortType.NO_SORT)).thenReturn(mockList);
 
         app.handleUserInput();
 
-        verify(restaurantService).fetchRestaurants("EC4M7RF");
+        verify(restaurantService).fetchRestaurants("EC4M7RF", JusteatrestaurantsApplication.SortType.NO_SORT);
     }
 
 
